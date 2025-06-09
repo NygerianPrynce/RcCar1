@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="author" content="Stéphane Calderoni">
+  <meta name="description" content="ESP32 Remote Control with WebSocket">
+  <title>ESP32 remote control</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="socket.js"></script>
+</head>
+
+<body tabindex="0">
+  <script>
+  console.log("Loaded new version of HTML!");
+  </script>
+  <div class="panel">
+    <h1>ESP32 remote control</h1>
+    <div>
+      <h2>Speed Control</h2>
+      <input type="range" id="speedSlider" min="-255" max="255" value="0"  />
+      <input type="number" id="speedInput" min="-255" max="255" value="0" />
+      <p>Speed: <span id="sV">0</span></p>
+      
+    </div>
+    <div>
+      <h2>Steering Control</h2>
+      <input type="range" id="steeringSlider" min="500" max="2500" value="1500" />
+      <input type="number" id="steeringInput" min="500" max="2500" value="1500" />
+      <p>Steer: <span id="stV">1500</span></p>
+      
+    </div>
+    <div>
+      <h2>Ultrasonic Readings</h2>
+      <p>Ultrasonic Reading: <span id="uV">--</span></p>
+    </div>
+    <div>
+    <h2>Camera Stream</h2>
+      <img id="camStream" src="http://CAM_IP_PLACEHOLDER/stream" width="100%">
+    </div>
+    <script>
+      const camIP = "CAM_IP_PLACEHOLDER";  // Replace on server-side!
+      document.getElementById("camStream").src = `http://${camIP}/stream`;
+    </script>
+  </div>
+</body>
+
+</html>
