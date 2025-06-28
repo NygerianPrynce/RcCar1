@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"name": "RcCar1",
+			"path": ".."
+		},
+		{
+			"name": "RCCarCam",
+			"path": "../../RCCarCam"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"iterator": "cpp"
+		},
+		"liveServer.settings.multiRootWorkspaceName": "RcCar1"
+	}
+}

@@ -1,50 +1,118 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="author" content="Stéphane Calderoni">
-  <meta name="description" content="ESP32 Remote Control with WebSocket">
-  <title>ESP32 remote control</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>F1 Telemetry Hub</title>
   <link rel="stylesheet" href="style.css">
   <script src="socket.js"></script>
+
 </head>
+<body>
+  <div class="dashboard">
+    <!-- Header -->
+    <div class="header">
+      <div class="team-info">
+        <h1>RC DASHBOARD</h1>
+        <div style="font-size: 0.6em; opacity: 0.8;">FORMULA REMOTE CONTROL</div>
+      </div>
+      <div class="session-info">
+        <div id="current-date"></div>
+        <script>
+        const today = new Date();
+        document.getElementById('current-date').innerHTML = "DATE: " + 
+            `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+        </script>
+        <div id="sessionTime">TIME: 00:00</div>
+      </div>
+    </div>
 
-<body tabindex="0">
-  <script>
-  console.log("Loaded new version of HTML!");
-  </script>
-  <div class="panel">
-    <h1>ESP32 remote control</h1>
-    <div>
-      <h2>Speed Control</h2>
-      <input type="range" id="speedSlider" min="-255" max="255" value="0"  />
-      <input type="number" id="speedInput" min="-255" max="255" value="0" />
-      <p>Speed: <span id="sV">0</span></p>
+    <!-- Left Telemetry Panel -->
+    <div class="telemetry-left">
+      <div class="data-block speed">
+        <h3>Velocity</h3>
+        <div class="data-value" id="velocity">--<span class="data-unit">MPH</span></div>
+      </div>
       
-    </div>
-    <div>
-      <h2>Steering Control</h2>
-      <input type="range" id="steeringSlider" min="500" max="2500" value="1500" />
-      <input type="number" id="steeringInput" min="500" max="2500" value="1500" />
-      <p>Steer: <span id="stV">1500</span></p>
+      <div class="data-block distance">
+        <h3>Proximity</h3>
+        <div class="data-value" id="uV">--<span class="data-unit">CM</span></div>
+      </div>
       
+      <div class="data-block motion">
+        <h3>G-Force</h3>
+        <div class="data-value" id="ax">--<span class="data-unit">G</span></div>
+      </div>
+      
+      <div class="data-block orientation">
+        <h3>Attitude</h3>
+        <div class="multi-value">
+          <div class="value-item">
+            <span class="label">PITCH</span>
+            <span class="value" id="pitchVal">0.0°</span>
+          </div>
+          <div class="value-item">
+            <span class="label">ROLL</span>
+            <span class="value" id="rollVal">0.0°</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div>
-      <h2>Ultrasonic Readings</h2>
-      <p>Ultrasonic Reading: <span id="uV">--</span></p>
+
+    <!-- Center Camera -->
+    <div class="camera-section">
+      <h2>Cockpit View</h2>
+      <div class="camera-panel">
+        <img id="camStream" src="http://CAM_IP_PLACEHOLDER:81/stream" alt="Live Stream" />
+      </div>
     </div>
-    <div>
-    <h2>Camera Stream</h2>
-      <img id="camStream" src="http://CAM_IP_PLACEHOLDER/stream" width="100%">
+
+    <!-- Right Controls Panel -->
+    <div class="controls-right">
+      <div class="control-block throttle">
+        <h3>Throttle</h3>
+        <div class="control-value" id="sV">Idle</div>
+        <div class="slider-container">
+          <div class="holo-grid"></div>
+          <div style="display: none;" class="holo-progress throttle" id="throttleProgress"></div>
+          <input type="range" id="speedSlider" min="-255" max="255" value="0"/>
+        </div>
+      </div>
+      
+      <div class="control-block steering">
+        <h3>Steering</h3>
+        <div class="control-value" id="stV">Straight</div>
+        <div class="slider-container">
+          <div class="holo-grid"></div>
+          <div style="display: none;" class="holo-progress steering" id="steeringProgress"></div>
+          <input type="range" id="steeringSlider" min="500" max="2500" value="1500" />
+        </div>
+      </div>
     </div>
-    <script>
-      const camIP = "CAM_IP_PLACEHOLDER";  // Replace on server-side!
-      document.getElementById("camStream").src = `http://${camIP}/stream`;
-    </script>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-indicator" id="connectionStatus"></div>
+        <span>CONNECTION</span>
+      </div>
+      <div class="status-item">
+        <div class="status-indicator" id="telemetryStatus"></div>
+        <span>TELEMETRY</span>
+      </div>
+      <div class="status-item">
+        <div class="status-indicator" id="cameraStatus"></div>
+        <span>VIDEO FEED</span>
+      </div>
+      <div class="status-item">
+        <span>Battery 1: <span class="battery-level" id="b1Percent">--</span></span>
+        <span>Battery 2: <span class="battery-level" id="b2Percent">--</span></span>
+      </div>
+    </div>
   </div>
-</body>
 
+  <script>
+    
+  </script>
+</body>
 </html>

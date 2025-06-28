@@ -1,124 +1,579 @@
-@charset "UTF-8";
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-/**
- * ----------------------------------------------------------------------------
- * ESP32 Remote Control with WebSocket
- * ----------------------------------------------------------------------------
- * © 2020 Stéphane Calderoni
- * ----------------------------------------------------------------------------
- */
+    body {
+      font-family: 'Orbitron', monospace;
+      background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000000 100%);
+      color: #ffffff;
+      overflow: hidden;
+      position: relative;
+    }
 
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 204, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 204, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+      z-index: -1;
+    }
 
-html, body {
-  height: 100%;
-  font-family: Roboto, sans-serif;
-  font-size: 12pt;
-  overflow: hidden;
-}
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(50px, 50px); }
+    }
 
-body {
-  display: grid;
-  grid-template-rows: 1fr;
-  align-items: center;
-  justify-items: center;
-}
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-rows: auto fit-content(550px) auto;
+      gap: 15px;
+      padding: 20px;
+      height: 100vh;
+      position: relative;
+    }
 
-.panel {
-  display: grid;
-  grid-gap: 3em;
-  justify-items: center;
-}
+    /* Main header with team info */
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #ff1e00, #ff6b00);
+      padding: 15px 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(255, 30, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
 
-h1 {
-  font-size: 1.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: shine 3s infinite;
+    }
 
-#led {
-  position: relative;
-  width: 5em;
-  height: 5em;
-  border: 2px solid #000;
-  border-radius: 2.5em;
-  background-image: radial-gradient(farthest-corner at 50% 20%, #b30000 0%, #330000 100%);
-  box-shadow: 0 0.5em 1em rgba(102, 0, 0, 0.3);
-}
-#led.on {
-  background-image: radial-gradient(farthest-corner at 50% 75%, red 0%, #990000 100%);
-  box-shadow: 0 1em 1.5em rgba(255, 0, 0, 0.5);
-}
-#led:after {
-  content: '';
-  position: absolute;
-  top: .3em;
-  left: 1em;
-  width: 60%;
-  height: 40%;
-  border-radius: 60%;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
-}
+    @keyframes shine {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
 
-button {
-  padding: .5em .75em;
-  font-size: 1.2rem;
-  color: #fff;
-  text-shadow: 0 -1px 1px #000;
-  border: 1px solid #000;
-  border-radius: .5em;
-  background-image: linear-gradient(#2e3538, #73848c);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 0.2em 0.4em rgba(0, 0, 0, 0.4);
-  outline: none;
-}
-#toggleF.on {
-  padding: .5em .75em;
-  font-size: 1.2rem;
-  color: #00ff1a;
-  text-shadow: 0 -1px 1px #000;
-  border: 1px solid #000;
-  border-radius: .5em;
-  background-image: linear-gradient(#2e3538, #73848c);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 0.2em 0.4em rgba(0, 0, 0, 0.4);
-  outline: none;
-}
-#toggleB.on {
-  padding: .5em .75em;
-  font-size: 1.2rem;
-  color: #00ff1a;
-  text-shadow: 0 -1px 1px #000;
-  border: 1px solid #000;
-  border-radius: .5em;
-  background-image: linear-gradient(#2e3538, #73848c);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 0.2em 0.4em rgba(0, 0, 0, 0.4);
-  outline: none;
-}
-#toggleL.on {
-  padding: .5em .75em;
-  font-size: 1.2rem;
-  color: #00ff1a;
-  text-shadow: 0 -1px 1px #000;
-  border: 1px solid #000;
-  border-radius: .5em;
-  background-image: linear-gradient(#2e3538, #73848c);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 0.2em 0.4em rgba(0, 0, 0, 0.4);
-  outline: none;
-}
-#toggleR.on {
-  padding: .5em .75em;
-  font-size: 1.2rem;
-  color: #00ff1a;
-  text-shadow: 0 -1px 1px #000;
-  border: 1px solid #000;
-  border-radius: .5em;
-  background-image: linear-gradient(#2e3538, #73848c);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 0.2em 0.4em rgba(0, 0, 0, 0.4);
-  outline: none;
-}
-button:active {
-  transform: translateY(2px);
-}
+    .team-info h1 {
+      font-size: 2.5em;
+      font-weight: 900;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+
+    .session-info {
+      text-align: right;
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    /* Camera section - center stage */
+    .camera-section {
+      grid-column: 2;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+      border-radius: 20px;
+      padding: 20px;
+      border: 3px solid #00ffcc;
+      box-shadow: 
+        0 0 40px rgba(0, 255, 204, 0.3),
+        inset 0 0 20px rgba(0, 255, 204, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .camera-section::before {
+      content: 'LIVE';
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: #ff0000;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 700;
+      animation: pulse 2s infinite;
+      z-index: 10;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .camera-section h2 {
+      color: #00ffcc;
+      margin-bottom: 15px;
+      font-size: 1.4em;
+      text-transform: uppercase;
+    }
+
+    .camera-panel img {
+      width: 100%;
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Left telemetry panel */
+    .telemetry-left {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* Right controls panel */
+    .controls-right {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .data-block {
+      background: linear-gradient(145deg, #1e1e1e, #0a0a0a);
+      border-radius: 15px;
+      padding: 20px;
+      border-left: 4px solid;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .data-block:hover {
+      transform: translateX(5px);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+    }
+
+    .data-block.speed { border-left-color: #ff0040; }
+    .data-block.distance { border-left-color: #ffcc00; }
+    .data-block.motion { border-left-color: #00ff80; }
+    .data-block.orientation { border-left-color: #8000ff; }
+
+    .data-block h3 {
+      color: #ffffff;
+      font-size: 1em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .data-value {
+      font-size: 2.2em;
+      font-weight: 700;
+      text-shadow: 0 0 10px currentColor;
+    }
+
+    .data-block.speed .data-value { color: #ff0040; }
+    .data-block.distance .data-value { color: #ffcc00; }
+    .data-block.motion .data-value { color: #00ff80; }
+    .data-block.orientation .data-value { color: #8000ff; }
+
+    .data-unit {
+      font-size: 0.7em;
+      opacity: 0.7;
+      margin-left: 5px;
+    }
+
+    /* Control blocks */
+    .control-block {
+      background: linear-gradient(145deg, #1e1e1e, #0a0a0a);
+      border-radius: 15px;
+      padding: 20px;
+      border-right: 4px solid;
+      position: relative;
+    }
+
+    .control-block.throttle { border-right-color: #ff4500; }
+    .control-block.steering { border-right-color: #00bfff; }
+
+    .control-block h3 {
+      color: #ffffff;
+      font-size: 1em;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .control-value {
+      font-size: 1.8em;
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-shadow: 0 0 10px currentColor;
+    }
+
+    .control-block.throttle .control-value { color: #ff4500; }
+    .control-block.steering .control-value { color: #00bfff; }
+
+    /* Sci-Fi Holographic Slider System */
+    .slider-container {
+      position: relative;
+      margin: 25px 0;
+      background: 
+        linear-gradient(135deg, transparent, rgba(0, 255, 204, 0.05), transparent),
+        radial-gradient(circle at center, rgba(0, 255, 204, 0.1), transparent);
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      border-radius: 20px;
+      padding: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 
+        0 0 30px rgba(0, 255, 204, 0.2),
+        inset 0 0 20px rgba(0, 255, 204, 0.05);
+      overflow: hidden;
+    }
+
+    .slider-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.05) 25%, 
+        rgba(0, 255, 204, 0.1) 50%, 
+        rgba(255, 255, 255, 0.05) 75%, 
+        transparent 100%);
+      animation: holoScan 4s linear infinite;
+    }
+
+    @keyframes holoScan {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Holographic Track */
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: transparent;
+      outline: none;
+      -webkit-appearance: none;
+      position: relative;
+      z-index: 2;
+      cursor: crosshair;
+    }
+
+    input[type="range"]::-webkit-slider-track {
+      height: 6px;
+      background: 
+        linear-gradient(90deg, 
+          rgba(0, 255, 204, 0.2) 0%,
+          rgba(0, 255, 204, 0.6) 50%,
+          rgba(0, 255, 204, 0.2) 100%);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 255, 204, 0.5);
+      box-shadow: 
+        0 0 15px rgba(0, 255, 204, 0.4),
+        inset 0 0 8px rgba(0, 255, 204, 0.2);
+    }
+
+    /* Holographic Orb Thumb */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.8), transparent 50%),
+        radial-gradient(circle, rgba(255, 69, 0, 0.9), rgba(255, 69, 0, 0.3));
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      cursor: crosshair;
+      position: relative;
+      box-shadow: 
+        0 0 30px rgba(255, 69, 0, 0.8),
+        0 0 60px rgba(255, 69, 0, 0.4),
+        inset 0 0 15px rgba(255, 255, 255, 0.3);
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      animation: orbPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { 
+        box-shadow: 
+          0 0 30px rgba(255, 69, 0, 0.8),
+          0 0 60px rgba(255, 69, 0, 0.4),
+          inset 0 0 15px rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        box-shadow: 
+          0 0 40px rgba(255, 69, 0, 1),
+          0 0 80px rgba(255, 69, 0, 0.6),
+          inset 0 0 20px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+      box-shadow: 
+        0 0 50px rgba(255, 69, 0, 1),
+        0 0 100px rgba(255, 69, 0, 0.8),
+        0 0 150px rgba(255, 69, 0, 0.4),
+        inset 0 0 25px rgba(255, 255, 255, 0.6);
+      animation: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.1);
+      box-shadow: 
+        0 0 60px rgba(255, 69, 0, 1),
+        0 0 120px rgba(255, 69, 0, 0.9),
+        inset 0 0 30px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Steering Slider Holographic Styling */
+    #steeringSlider::-webkit-slider-track {
+      background: 
+        linear-gradient(90deg, 
+          rgba(0, 191, 255, 0.2) 0%,
+          rgba(0, 191, 255, 0.6) 50%,
+          rgba(0, 191, 255, 0.2) 100%);
+      border: 1px solid rgba(0, 191, 255, 0.5);
+      box-shadow: 
+        0 0 15px rgba(0, 191, 255, 0.4),
+        inset 0 0 8px rgba(0, 191, 255, 0.2);
+    }
+
+    #steeringSlider::-webkit-slider-thumb {
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.8), transparent 50%),
+        radial-gradient(circle, rgba(0, 191, 255, 0.9), rgba(0, 191, 255, 0.3));
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 
+        0 0 30px rgba(0, 191, 255, 0.8),
+        0 0 60px rgba(0, 191, 255, 0.4),
+        inset 0 0 15px rgba(255, 255, 255, 0.3);
+      animation: orbPulseBlue 3s ease-in-out infinite;
+    }
+
+    @keyframes orbPulseBlue {
+      0%, 100% { 
+        box-shadow: 
+          0 0 30px rgba(0, 191, 255, 0.8),
+          0 0 60px rgba(0, 191, 255, 0.4),
+          inset 0 0 15px rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        box-shadow: 
+          0 0 40px rgba(0, 191, 255, 1),
+          0 0 80px rgba(0, 191, 255, 0.6),
+          inset 0 0 20px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    #steeringSlider::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+      box-shadow: 
+        0 0 50px rgba(0, 191, 255, 1),
+        0 0 100px rgba(0, 191, 255, 0.8),
+        0 0 150px rgba(0, 191, 255, 0.4),
+        inset 0 0 25px rgba(255, 255, 255, 0.6);
+      animation: none;
+    }
+
+    #steeringSlider::-webkit-slider-thumb:active {
+      transform: scale(1.1);
+      box-shadow: 
+        0 0 60px rgba(0, 191, 255, 1),
+        0 0 120px rgba(0, 191, 255, 0.9),
+        inset 0 0 30px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Holographic Progress Visualization */
+    .holo-progress {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 8px;
+      border-radius: 10px;
+      pointer-events: none;
+      z-index: 1;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      backdrop-filter: blur(2px);
+    }
+
+    .holo-progress.throttle {
+      background: 
+        linear-gradient(90deg, 
+          transparent 0%,
+          rgba(255, 69, 0, 0.3) 20%,
+          rgba(255, 140, 0, 0.6) 50%,
+          rgba(255, 200, 0, 0.8) 80%,
+          rgba(255, 255, 255, 0.4) 100%);
+      border: 1px solid rgba(255, 69, 0, 0.5);
+      box-shadow: 
+        0 0 20px rgba(255, 69, 0, 0.6),
+        inset 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .holo-progress.steering {
+      background: 
+        linear-gradient(90deg, 
+          rgba(0, 191, 255, 0.8) 0%,
+          rgba(0, 150, 255, 0.6) 25%,
+          rgba(0, 191, 255, 0.3) 50%,
+          rgba(0, 150, 255, 0.6) 75%,
+          rgba(0, 191, 255, 0.8) 100%);
+      border: 1px solid rgba(0, 191, 255, 0.5);
+      box-shadow: 
+        0 0 20px rgba(0, 191, 255, 0.6),
+        inset 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Holographic Grid Lines */
+    .holo-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(90deg, rgba(0, 255, 204, 0.1) 1px, transparent 1px),
+        linear-gradient(rgba(0, 255, 204, 0.1) 1px, transparent 1px);
+      background-size: 10px 10px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* Particle Effects */
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(0, 255, 204, 0.8);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: floatParticle 6s linear infinite;
+    }
+
+    @keyframes floatParticle {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Status bar */
+    .status-bar {
+      grid-column: 1 / -1;
+      background: linear-gradient(90deg, #1a1a1a, #2a2a2a, #1a1a1a);
+      border-radius: 15px;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 2px solid #333;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.9em;
+      flex-direction: column;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #00ff00;
+      animation: statusPulse 2s infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .status-indicator.warning { background: #ffaa00; }
+    .status-indicator.error { background: #ff0000; }
+
+    /* Multi-value display for orientation */
+    .multi-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .multi-value .value-item {
+      text-align: center;
+    }
+
+    .multi-value .value-item .label {
+      font-size: 0.6em;
+      opacity: 0.7;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .multi-value .value-item .value {
+      font-size: 1.4em;
+      font-weight: 700;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1200px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+      }
+      
+      .camera-section {
+        grid-column: 1;
+      }
+      
+      .telemetry-left,
+      .controls-right {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      
+    }
+    .battery-high {
+        color: #00ff00 !important; /* green */
+        text-shadow: 0 0 10px #00ff00;
+      }
+
+      .battery-medium {
+        color: #ffcc00 !important; /* yellow */
+        text-shadow: 0 0 10px #00ff00;
+      }
+
+      .battery-low {
+        color: #ff3333 !important; /* red */
+        text-shadow: 0 0 10px #00ff00;
+      }
