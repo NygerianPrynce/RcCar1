@@ -22,8 +22,8 @@ Adafruit_MPU6050 mpu;
 Madgwick filter;
 
 //WIFI info -- gotta  hide during git commit!
-const char *WIFI_SSID = "Ebialayo";
-const char *WIFI_PASS = "alhamdulillahi2024$";
+const char *WIFI_SSID = "********";
+const char *WIFI_PASS = "********";
 
 //HTTP & Webserver STUFF
 #define HTTP_PORT 80
